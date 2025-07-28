@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <stdlib.h>
 
 // splict yuv file
@@ -6,8 +8,10 @@ int simplest_yuv420_split(const char *url, int w ,int h, int num){
     // open yuv file
     FILE *fp = fopen(url, "rb");
     if(!fp){
-        fprintf(stderr, "Error: Cannot open the input file\n");
+        fprintf(stderr, "Error: Open failed (errno:%d): %s\n",
+                errno, strerror(errno));
         fclose(fp);
+        exit(EXIT_FAILURE);
     }
 
     // touch y、u、v files
@@ -17,10 +21,13 @@ int simplest_yuv420_split(const char *url, int w ,int h, int num){
 
     // check file open
     if(!fp1 || !fp2 || !fp3){
-        fprintf(stderr, "Error: Cannot open the output files\n");
+        fprintf(stderr, "Error: Open file failed (errno:%d): %s\n",
+                errno,strerror(errno));
+        fclose(fp);
         if(fp1) fclose(fp1);
         if(fp2) fclose(fp2);
         if(fp3) fclose(fp3);
+        exit(EXIT_FAILURE);
     }
 
     // alloc memory
@@ -47,6 +54,8 @@ int simplest_yuv420_split(const char *url, int w ,int h, int num){
         fwrite(pic + w * h * 5 / 4, 1, w * h / 4, fp3);
     }
 
+    // free resource
+    free(pic);
     fclose(fp);
     fclose(fp1);
     fclose(fp2);
