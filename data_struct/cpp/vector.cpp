@@ -23,6 +23,18 @@ public:
         _alloc.construct(_finish++, val);
     }
 
+    void push_back(T && val){
+        if(size() == capacity()){
+            reallocate();
+        }
+        _alloc.construct(++_finish, std::move(val));
+    }
+
+    void pop_back(){
+        if(_finish != _start){
+            _alloc.destroy(--_finish);
+        }
+    }
     int size() const {return _finish - _start;}
     int capacity() const {return _endofstorage - _start;}
 
